@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/event.json",
+  "title": "Event",
+  "description": "Immutable event log entry for the CCSR protocol.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "run_id",
+    "sequence",
+    "type",
+    "agent_id",
+    "payload",
+    "created_at"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "description": "Unique identifier for this event."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this event belongs to."
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Monotonically increasing sequence number within the run."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "run_started",
+        "run_failed",
+        "run_completed",
+        "run_cancelled",
+        "agent_selected",
+        "agent_started",
+        "agent_completed",
+        "agent_error",
+        "problem_framed",
+        "claim_created",
+        "claim_updated",
+        "evidence_requested",
+        "evidence_attached",
+        "objection_created",
+        "objection_resolved",
+        "claim_revised",
+        "judge_scored",
+        "judge_escalated",
+        "final_answer_created",
+        "evaluation_completed",
+        "tool_called",
+        "tool_result"
+      ],
+      "description": "Type of event."
+    },
+    "agent_id": {
+      "type": ["string", "null"],
+      "description": "Identifier of the agent involved, or null for system events."
+    },
+    "payload": {
+      "type": "object",
+      "description": "Event-specific payload data."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this event was created."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: evidence-service
+  namespace: mctagents
+  labels:
+    app: evidence-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: evidence-service
+  template:
+    metadata:
+      labels:
+        app: evidence-service
+    spec:
+      containers:
+        - name: evidence-service
+          image: mctagents/evidence-service:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: QDRANT_HOST
+              value: qdrant
+            - name: OLLAMA_BASE_URL
+              value: http://ollama:11434
+            - name: EMBEDDING_MODEL
+              value: nomic-embed-text
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: evidence-service
+  namespace: mctagents
+spec:
+  selector:
+    app: evidence-service
+  ports:
+    - port: 8001
+      targetPort: 8001

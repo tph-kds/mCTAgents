@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/api-error.json",
+  "title": "ApiError",
+  "description": "Standard error response model for the CCSR API.",
+  "type": "object",
+  "required": [
+    "code",
+    "message",
+    "retryable",
+    "run_id",
+    "step",
+    "details"
+  ],
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "Machine-readable error code (e.g., 'VALIDATION_ERROR', 'RATE_LIMITED')."
+    },
+    "message": {
+      "type": "string",
+      "description": "Human-readable error message."
+    },
+    "retryable": {
+      "type": "boolean",
+      "description": "Whether the client may retry this request."
+    },
+    "run_id": {
+      "type": ["string", "null"],
+      "description": "Reference to the run where the error occurred, or null if no run context."
+    },
+    "step": {
+      "type": ["string", "null"],
+      "description": "Pipeline step where the error occurred, or null."
+    },
+    "details": {
+      "type": ["object", "null"],
+      "description": "Additional error details, or null if none."
+    }
+  },
+  "additionalProperties": false
+}

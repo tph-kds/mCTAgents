@@ -1,0 +1,9 @@
+id: software_architecture_001
+problem: "Design a scalable private document QA system for a 500-person company."
+expected_dimensions: [architecture, retrieval, security, observability, deployment]
+rubric:
+  completeness: 0.25
+  consistency: 0.25
+  evidence: 0.25
+  feasibility: 0.25
+policy: balanced_reasoning

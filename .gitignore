@@ -216,3 +216,57 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# =============================================================================
+# mCTAgents specific
+# =============================================================================
+
+# Docker volumes
+pgdata/
+redisdata/
+qdrant_data/
+ollama_data/
+
+# Build artifacts
+bin/
+*.exe
+*.dll
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+.next/
+out/
+dist/
+
+# Go
+vendor/
+
+# Python virtual environments
+.venv/
+
+# Docker Compose override (local only)
+docker-compose.override.yml
+
+# Environment files
+.env.local
+.env.production
+
+# Benchmark results
+benchmarks/results/*.json
+benchmarks/results/*.md
+
+# Logs
+*.log
+logs/

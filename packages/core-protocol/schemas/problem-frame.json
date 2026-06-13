@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/problem-frame.json",
+  "title": "ProblemFrame",
+  "description": "Defines what agents are solving in a CCSR reasoning run.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "original_input",
+    "normalized_problem",
+    "constraints",
+    "success_criteria",
+    "risk_level",
+    "domain",
+    "requires_business_decision",
+    "requires_research",
+    "requires_code",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this problem frame."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this problem frame belongs to."
+    },
+    "original_input": {
+      "type": "string",
+      "description": "The original user input or query."
+    },
+    "normalized_problem": {
+      "type": "string",
+      "description": "A structured, normalized representation of the problem."
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of constraints that apply to this problem."
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Criteria that must be met for the answer to be considered successful."
+    },
+    "risk_level": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Assessed risk level of the problem."
+    },
+    "domain": {
+      "type": "string",
+      "description": "Domain or subject area of the problem."
+    },
+    "requires_business_decision": {
+      "type": "boolean",
+      "description": "Whether this problem requires a business decision."
+    },
+    "requires_research": {
+      "type": "boolean",
+      "description": "Whether this problem requires research or evidence gathering."
+    },
+    "requires_code": {
+      "type": "boolean",
+      "description": "Whether this problem requires code generation or execution."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this problem frame was created."
+    }
+  },
+  "additionalProperties": false
+}

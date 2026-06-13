@@ -1,0 +1,17 @@
+apiVersion: v2
+name: mctagents
+description: mCTAgents - Open-source social reasoning engine
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+maintainers:
+  - name: mCTAgents Team
+keywords:
+  - ai
+  - reasoning
+  - agents
+  - claims
+home: https://github.com/anomalyco/mCTAgents
+sources:
+  - https://github.com/anomalyco/mCTAgents
+license: Apache-2.0

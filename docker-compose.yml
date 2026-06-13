@@ -1,0 +1,226 @@
+services:
+  # =============================================================================
+  # PostgreSQL - Primary Database
+  # =============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: mctagents-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mctagents}
+      POSTGRES_USER: ${POSTGRES_USER:-mctagents}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devpassword}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mctagents} -d ${POSTGRES_DB:-mctagents}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Redis - Cache & Event Bus
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: mctagents-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Qdrant - Vector Database
+  # =============================================================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mctagents-qdrant
+    ports:
+      - "${QDRANT_PORT:-6333}:6333"
+      - "${QDRANT_GRPC_PORT:-6334}:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Ollama - Local LLM Inference
+  # =============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mctagents-ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mctagents
+    # Uncomment below for GPU support
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # =============================================================================
+  # API Gateway (Go)
+  # =============================================================================
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+      target: development
+    container_name: mctagents-api-gateway
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:8080"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-mctagents}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-mctagents}
+      REDIS_URL: redis://redis:6379
+      MODEL_GATEWAY_URL: http://model-gateway:8090
+      REASONING_ENGINE_URL: http://reasoning-engine:8000
+      EVIDENCE_SERVICE_URL: http://evidence-service:8001
+      OLLAMA_BASE_URL: http://ollama:11434
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      AUTH_ENABLED: ${AUTH_ENABLED:-false}
+    volumes:
+      - ./services/api-gateway:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Reasoning Engine (Python)
+  # =============================================================================
+  reasoning-engine:
+    build:
+      context: ./services/reasoning-engine
+      dockerfile: Dockerfile
+      target: development
+    container_name: mctagents-reasoning-engine
+    ports:
+      - "${REASONING_ENGINE_PORT:-8000}:8000"
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-mctagents}:${POSTGRES_PASSWORD:-devpassword}@postgres:5432/${POSTGRES_DB:-mctagents}
+      REDIS_URL: redis://redis:6379
+      MODEL_GATEWAY_URL: http://model-gateway:8090
+      EVIDENCE_SERVICE_URL: http://evidence-service:8001
+      OLLAMA_BASE_URL: http://ollama:11434
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    volumes:
+      - ./services/reasoning-engine:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Model Gateway (Go)
+  # =============================================================================
+  model-gateway:
+    build:
+      context: ./services/model-gateway
+      dockerfile: Dockerfile
+      target: development
+    container_name: mctagents-model-gateway
+    ports:
+      - "${MODEL_GATEWAY_PORT:-8090}:8090"
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    volumes:
+      - ./services/model-gateway:/app
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Evidence Service (Python)
+  # =============================================================================
+  evidence-service:
+    build:
+      context: ./services/evidence-service
+      dockerfile: Dockerfile
+      target: development
+    container_name: mctagents-evidence-service
+    ports:
+      - "${EVIDENCE_SERVICE_PORT:-8001}:8001"
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      OLLAMA_BASE_URL: http://ollama:11434
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    volumes:
+      - ./services/evidence-service:/app
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    networks:
+      - mctagents
+
+  # =============================================================================
+  # Studio Frontend (Next.js)
+  # =============================================================================
+  studio:
+    build:
+      context: ./apps/studio
+      dockerfile: Dockerfile
+      target: development
+    container_name: mctagents-studio
+    ports:
+      - "${STUDIO_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:${API_GATEWAY_PORT:-8080}
+      NEXT_PUBLIC_SSE_URL: http://localhost:${API_GATEWAY_PORT:-8080}
+    volumes:
+      - ./apps/studio:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      api-gateway:
+        condition: service_started
+    networks:
+      - mctagents
+
+volumes:
+  pgdata:
+  redisdata:
+  qdrant_data:
+  ollama_data:
+
+networks:
+  mctagents:
+    driver: bridge

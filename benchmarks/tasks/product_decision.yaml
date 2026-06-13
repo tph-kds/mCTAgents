@@ -1,0 +1,9 @@
+id: product_decision_001
+problem: "Should we build a mobile app or a progressive web app for our e-commerce platform?"
+expected_dimensions: [user_experience, performance, cost, maintenance, offline]
+rubric:
+  completeness: 0.25
+  consistency: 0.25
+  evidence: 0.25
+  feasibility: 0.25
+policy: balanced_reasoning

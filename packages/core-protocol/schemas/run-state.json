@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/run-state.json",
+  "title": "RunState",
+  "description": "Run metadata tracking the state of a CCSR reasoning session.",
+  "type": "object",
+  "required": [
+    "id",
+    "tenant_id",
+    "status",
+    "mode",
+    "evidence_policy",
+    "budget_config",
+    "metadata",
+    "created_at",
+    "updated_at",
+    "completed_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this run."
+    },
+    "tenant_id": {
+      "type": "string",
+      "description": "Tenant or organization this run belongs to."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "framing",
+        "society_planning",
+        "claim_proposal",
+        "evidence_attachment",
+        "criticism",
+        "revision",
+        "judging",
+        "escalation",
+        "synthesis",
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "description": "Current status of the run."
+    },
+    "mode": {
+      "type": "string",
+      "description": "Execution mode (e.g., 'full', 'fast', 'interactive')."
+    },
+    "evidence_policy": {
+      "type": "string",
+      "description": "Policy governing evidence gathering behavior."
+    },
+    "budget_config": {
+      "type": "object",
+      "description": "Budget configuration for token usage and runtime limits."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this run."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this run was created."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this run was last updated."
+    },
+    "completed_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "Timestamp when this run completed, or null if still running."
+    }
+  },
+  "additionalProperties": false
+}

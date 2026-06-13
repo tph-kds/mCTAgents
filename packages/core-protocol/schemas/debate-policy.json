@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/debate-policy.json",
+  "title": "DebatePolicy",
+  "description": "Policy governing debate behavior and budget limits in the CCSR protocol.",
+  "type": "object",
+  "required": [
+    "max_rounds",
+    "escalation_threshold",
+    "judge_confidence_threshold",
+    "budget",
+    "drift_detection_enabled",
+    "auto_stop_enabled"
+  ],
+  "properties": {
+    "max_rounds": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum number of debate rounds allowed."
+    },
+    "escalation_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Score threshold below which claims are escalated for review."
+    },
+    "judge_confidence_threshold": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum confidence required from the judge to accept a claim."
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "max_tokens": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum total tokens allowed for the run."
+        },
+        "max_model_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum number of model API calls allowed."
+        },
+        "max_runtime_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum runtime in seconds."
+        }
+      },
+      "required": ["max_tokens", "max_model_calls", "max_runtime_seconds"],
+      "additionalProperties": false,
+      "description": "Resource budget limits for the run."
+    },
+    "drift_detection_enabled": {
+      "type": "boolean",
+      "description": "Whether topic drift detection is enabled."
+    },
+    "auto_stop_enabled": {
+      "type": "boolean",
+      "description": "Whether automatic stopping on convergence is enabled."
+    }
+  },
+  "additionalProperties": false
+}

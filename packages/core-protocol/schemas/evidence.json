@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/evidence.json",
+  "title": "Evidence",
+  "description": "Source-backed support or attack item for claims.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "source_type",
+    "source_ref",
+    "summary",
+    "full_text",
+    "reliability_score",
+    "source_authority",
+    "recency",
+    "specificity",
+    "independence",
+    "retrieval_confidence",
+    "chunk_id",
+    "document_id",
+    "supports_claim_ids",
+    "attacks_claim_ids",
+    "metadata",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this evidence item."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this evidence belongs to."
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "uploaded_document",
+        "official_documentation",
+        "web_source",
+        "academic_paper",
+        "github_repository",
+        "code_execution_result",
+        "database_result",
+        "internal_memory",
+        "human_confirmation",
+        "benchmark_result"
+      ],
+      "description": "Classification of the evidence source."
+    },
+    "source_ref": {
+      "type": ["string", "null"],
+      "description": "Reference URL or path to the source, or null if not applicable."
+    },
+    "summary": {
+      "type": "string",
+      "description": "Brief summary of the evidence content."
+    },
+    "full_text": {
+      "type": ["string", "null"],
+      "description": "Full text of the evidence, or null if not available."
+    },
+    "reliability_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall reliability score of this evidence (0-1)."
+    },
+    "source_authority": {
+      "type": ["number", "null"],
+      "description": "Authority score of the source (0-1), or null if not assessed."
+    },
+    "recency": {
+      "type": ["number", "null"],
+      "description": "Recency score of the evidence (0-1), or null if not assessed."
+    },
+    "specificity": {
+      "type": ["number", "null"],
+      "description": "Specificity score of the evidence (0-1), or null if not assessed."
+    },
+    "independence": {
+      "type": ["number", "null"],
+      "description": "Independence score of the evidence source (0-1), or null if not assessed."
+    },
+    "retrieval_confidence": {
+      "type": ["number", "null"],
+      "description": "Confidence in the retrieval process (0-1), or null if not assessed."
+    },
+    "chunk_id": {
+      "type": ["string", "null"],
+      "description": "ID of the specific chunk retrieved, or null."
+    },
+    "document_id": {
+      "type": ["string", "null"],
+      "description": "ID of the source document, or null."
+    },
+    "supports_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs that this evidence supports."
+    },
+    "attacks_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs that this evidence attacks."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this evidence."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this evidence was created."
+    }
+  },
+  "additionalProperties": false
+}

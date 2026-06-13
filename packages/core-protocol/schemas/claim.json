@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/claim.json",
+  "title": "Claim",
+  "description": "A proposition that can be supported, attacked, or revised within the CCSR protocol.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "author_agent_id",
+    "text",
+    "claim_type",
+    "confidence",
+    "status",
+    "requires_evidence",
+    "evidence_status",
+    "parent_claim_id",
+    "rejection_reason",
+    "score_logic",
+    "score_evidence",
+    "score_feasibility",
+    "score_critic_resistance",
+    "score_risk_adjusted",
+    "score_final",
+    "metadata",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this claim."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this claim belongs to."
+    },
+    "author_agent_id": {
+      "type": "string",
+      "description": "Identifier of the agent that authored this claim."
+    },
+    "text": {
+      "type": "string",
+      "description": "The textual content of the claim."
+    },
+    "claim_type": {
+      "type": "string",
+      "enum": [
+        "general",
+        "architecture_decision",
+        "technical_approach",
+        "risk_assessment",
+        "tradeoff_analysis",
+        "recommendation",
+        "factual",
+        "opinion"
+      ],
+      "description": "Classification of the claim."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Confidence level of the claim (0-1)."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "evidence_requested",
+        "supported",
+        "challenged",
+        "revision_required",
+        "revised",
+        "accepted",
+        "rejected",
+        "uncertain"
+      ],
+      "description": "Current status of the claim in the reasoning lifecycle."
+    },
+    "requires_evidence": {
+      "type": "boolean",
+      "description": "Whether this claim requires evidence to be considered supported."
+    },
+    "evidence_status": {
+      "type": "string",
+      "enum": ["unsupported", "partial", "supported", "over_supported"],
+      "description": "Status of evidence supporting this claim."
+    },
+    "parent_claim_id": {
+      "type": ["string", "null"],
+      "description": "ID of the parent claim if this is a revision, or null."
+    },
+    "rejection_reason": {
+      "type": ["string", "null"],
+      "description": "Reason for rejection if status is rejected, or null."
+    },
+    "score_logic": {
+      "type": ["number", "null"],
+      "description": "Logic quality score, or null if not yet scored."
+    },
+    "score_evidence": {
+      "type": ["number", "null"],
+      "description": "Evidence quality score, or null if not yet scored."
+    },
+    "score_feasibility": {
+      "type": ["number", "null"],
+      "description": "Feasibility score, or null if not yet scored."
+    },
+    "score_critic_resistance": {
+      "type": ["number", "null"],
+      "description": "Resistance to criticism score, or null if not yet scored."
+    },
+    "score_risk_adjusted": {
+      "type": ["number", "null"],
+      "description": "Risk-adjusted score, or null if not yet scored."
+    },
+    "score_final": {
+      "type": ["number", "null"],
+      "description": "Final composite score, or null if not yet scored."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this claim."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this claim was created."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this claim was last updated."
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,69 @@
+# Default values for mCTagents
+replicaCount:
+  apiGateway: 2
+  reasoningEngine: 2
+  evidenceService: 1
+  modelGateway: 1
+
+image:
+  repository: mctagents
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: mctagents.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  apiGateway:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  reasoningEngine:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  evidenceService:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+secrets:
+  postgresPassword: "CHANGE_ME"
+
+config:
+  ollamaBaseUrl: "http://ollama:11434"
+  defaultChatModel: "qwen2.5:7b"
+  defaultReasoningModel: "deepseek-r1:7b"
+  defaultEmbeddingModel: "nomic-embed-text"
+  logLevel: "info"
+
+postgres:
+  enabled: true
+  storage: 10Gi
+
+redis:
+  enabled: true
+
+ollama:
+  enabled: true

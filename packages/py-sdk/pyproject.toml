@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mctagents-sdk"
+version = "0.1.0"
+description = "Python SDK for mCTAgents social reasoning API"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = ["httpx>=0.26.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4.0", "pytest-asyncio>=0.23.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mctagents_sdk"]

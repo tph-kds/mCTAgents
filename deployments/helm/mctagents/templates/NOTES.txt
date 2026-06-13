@@ -1,0 +1,13 @@
+mCTAgents has been deployed!
+
+API Gateway is available at:
+{{- if eq .Values.service.type "LoadBalancer" }}
+  kubectl get svc {{ include "mctagents.fullname" . }}-api-gateway
+{{- else }}
+  kubectl port-forward svc/{{ include "mctagents.fullname" . }}-api-gateway 8080:{{ .Values.service.port }}
+{{- end }}
+
+Then open http://localhost:8080/health to verify.
+
+For the Studio frontend, run locally:
+  cd apps/studio && pnpm dev

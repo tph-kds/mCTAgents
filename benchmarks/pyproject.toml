@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mctagents-benchmarks"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["pyyaml>=6.0", "httpx>=0.26.0", "mctagents-sdk"]
+
+[project.scripts]
+benchmark = "benchmarks.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/benchmarks"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true

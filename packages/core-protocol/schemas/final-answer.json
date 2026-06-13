@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/final-answer.json",
+  "title": "FinalAnswer",
+  "description": "Synthesized answer referencing accepted claims from the reasoning process.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "answer_text",
+    "accepted_claim_ids",
+    "rejected_alternatives",
+    "risks",
+    "next_steps",
+    "confidence",
+    "metadata",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this final answer."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this final answer belongs to."
+    },
+    "answer_text": {
+      "type": "string",
+      "description": "The synthesized answer text."
+    },
+    "accepted_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs that form the basis of this answer."
+    },
+    "rejected_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "description": "ID of the rejected claim."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Reason this alternative was rejected."
+          }
+        },
+        "required": ["claim_id", "reason"],
+        "additionalProperties": false
+      },
+      "description": "Rejected alternative claims and reasons for rejection."
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Description of the risk."
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"],
+            "description": "Severity of the risk."
+          },
+          "mitigation": {
+            "type": "string",
+            "description": "Suggested mitigation for this risk."
+          }
+        },
+        "required": ["description", "severity", "mitigation"],
+        "additionalProperties": false
+      },
+      "description": "Remaining risks associated with this answer."
+    },
+    "next_steps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Suggested next steps or follow-up actions."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in this final answer (0-1)."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this final answer."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this final answer was created."
+    }
+  },
+  "additionalProperties": false
+}

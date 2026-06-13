@@ -1,0 +1,9 @@
+id: security_review_001
+problem: "Review the security posture of a microservices architecture using JWT authentication."
+expected_dimensions: [authentication, authorization, encryption, audit, compliance]
+rubric:
+  completeness: 0.30
+  consistency: 0.20
+  evidence: 0.30
+  feasibility: 0.20
+policy: balanced_reasoning

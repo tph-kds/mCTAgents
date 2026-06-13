@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mctagents.fullname" . }}-reasoning-engine
+  labels:
+    {{- include "mctagents.labels" . | nindent 4 }}
+    app: reasoning-engine
+spec:
+  replicas: {{ .Values.replicaCount.reasoningEngine }}
+  selector:
+    matchLabels:
+      app: reasoning-engine
+  template:
+    metadata:
+      labels:
+        app: reasoning-engine
+    spec:
+      containers:
+        - name: reasoning-engine
+          image: "{{ .Values.image.repository }}/reasoning-engine:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "postgres://mctagents:$(POSTGRES_PASSWORD)@{{ include "mctagents.fullname" . }}-postgres:5432/mctagents"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mctagents.fullname" . }}-secrets
+                  key: postgres-password
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.config.ollamaBaseUrl | quote }}
+            - name: DEFAULT_CHAT_MODEL
+              value: {{ .Values.config.defaultChatModel | quote }}
+            - name: DEFAULT_REASONING_MODEL
+              value: {{ .Values.config.defaultReasoningModel | quote }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources.reasoningEngine | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mctagents.fullname" . }}-reasoning-engine
+  labels:
+    {{- include "mctagents.labels" . | nindent 4 }}
+spec:
+  selector:
+    app: reasoning-engine
+  ports:
+    - port: 8000
+      targetPort: 8000

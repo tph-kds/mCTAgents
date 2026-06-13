@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/revision.json",
+  "title": "Revision",
+  "description": "Represents a claim improvement caused by objections or evidence.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "old_claim_id",
+    "new_claim_id",
+    "reason",
+    "revision_type",
+    "improvement_score",
+    "metadata",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this revision."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this revision belongs to."
+    },
+    "old_claim_id": {
+      "type": "string",
+      "description": "ID of the claim before revision."
+    },
+    "new_claim_id": {
+      "type": "string",
+      "description": "ID of the revised claim."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Explanation of why the revision was made."
+    },
+    "revision_type": {
+      "type": "string",
+      "enum": [
+        "objection_driven",
+        "evidence_driven",
+        "judge_feedback",
+        "self_improvement"
+      ],
+      "description": "What triggered the revision."
+    },
+    "improvement_score": {
+      "type": ["number", "null"],
+      "description": "Measured improvement score, or null if not yet scored."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this revision."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this revision was created."
+    }
+  },
+  "additionalProperties": false
+}

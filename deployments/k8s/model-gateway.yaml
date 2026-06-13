@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: model-gateway
+  namespace: mctagents
+  labels:
+    app: model-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: model-gateway
+  template:
+    metadata:
+      labels:
+        app: model-gateway
+    spec:
+      containers:
+        - name: model-gateway
+          image: mctagents/model-gateway:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: OLLAMA_BASE_URL
+              value: http://ollama:11434
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-gateway
+  namespace: mctagents
+spec:
+  selector:
+    app: model-gateway
+  ports:
+    - port: 8090
+      targetPort: 8090

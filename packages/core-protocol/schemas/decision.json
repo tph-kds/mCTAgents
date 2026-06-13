@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mctagents.dev/schemas/decision.json",
+  "title": "Decision",
+  "description": "Judge output selecting accepted, rejected, or uncertain claims.",
+  "type": "object",
+  "required": [
+    "id",
+    "run_id",
+    "accepted_claim_ids",
+    "rejected_claim_ids",
+    "uncertain_claim_ids",
+    "score_breakdown",
+    "confidence",
+    "needs_more_debate",
+    "extra_debate_reason",
+    "metadata",
+    "created_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this decision."
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Reference to the run this decision belongs to."
+    },
+    "accepted_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs accepted by the judge."
+    },
+    "rejected_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs rejected by the judge."
+    },
+    "uncertain_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of claim IDs the judge could not decide on."
+    },
+    "score_breakdown": {
+      "type": "object",
+      "description": "Detailed score breakdown per claim or dimension."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall confidence in this decision (0-1)."
+    },
+    "needs_more_debate": {
+      "type": "boolean",
+      "description": "Whether the judge determined more debate is needed."
+    },
+    "extra_debate_reason": {
+      "type": ["string", "null"],
+      "description": "Reason more debate is needed, or null if not applicable."
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary metadata associated with this decision."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when this decision was created."
+    }
+  },
+  "additionalProperties": false
+}
