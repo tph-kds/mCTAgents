@@ -266,6 +266,7 @@ docker-compose.override.yml
 # Benchmark results
 benchmarks/results/*.json
 benchmarks/results/*.md
+.opencode/*
 
 # Logs
 *.log
