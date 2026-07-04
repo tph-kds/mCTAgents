@@ -8,6 +8,7 @@ import { getRun, getClaims } from "@/lib/api";
 import { StatusBar, MiniTimeline } from "@/components/hud/StatusBar";
 import { ControlsPanel } from "@/components/hud/ControlsPanel";
 import { ClaimsSidebar } from "@/components/hud/ClaimsSidebar";
+import { ThinkingTracesPanel } from "@/components/hud/ThinkingTracesPanel";
 import type { Claim, SSEEvent } from "@/lib/types";
 
 const Workspace = dynamic(
@@ -41,7 +42,7 @@ function computeRound(events: SSEEvent[]): number {
 export default function RunDetailPage() {
   const params = useParams();
   const runId = params.runId as string;
-  const { events, connected } = useSSE(runId);
+  const { events, connected, thinkingSteps } = useSSE(runId);
   const [run, setRun] = useState<Record<string, unknown> | null>(null);
   const [claims, setClaims] = useState<Claim[]>([]);
 
@@ -85,6 +86,7 @@ export default function RunDetailPage() {
         <div className="w-64 shrink-0 flex flex-col gap-3 overflow-y-auto">
           <ControlsPanel runId={runId} phase={phase} connected={connected} />
           <MiniTimeline events={events} />
+          <ThinkingTracesPanel steps={thinkingSteps} />
         </div>
 
         {/* Center: 3D workspace */}
