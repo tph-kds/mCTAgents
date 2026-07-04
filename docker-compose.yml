@@ -88,6 +88,36 @@ services:
     #           capabilities: [gpu]
 
   # =============================================================================
+  # SGLang - High-Performance LLM Serving
+  # =============================================================================
+  sglang:
+    image: lmsysorg/sglang:latest
+    container_name: mctagents-sglang
+    ports:
+      - "${SGLANG_PORT:-30000}:30000"
+    volumes:
+      - sglang_data:/root/.cache/huggingface
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:30000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - mctagents
+    profiles:
+      - sglang
+
+  # =============================================================================
   # API Gateway (Go)
   # =============================================================================
   api-gateway:
@@ -220,6 +250,8 @@ volumes:
   redisdata:
   qdrant_data:
   ollama_data:
+  sglang_data:
+    driver: local
 
 networks:
   mctagents:
