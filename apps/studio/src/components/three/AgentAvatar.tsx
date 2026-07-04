@@ -13,6 +13,7 @@ export interface AgentProps {
   position: [number, number, number];
   isActive: boolean;
   isSpeaking: boolean;
+  onClick?: (agentId: string) => void;
 }
 
 const ROLE_SHAPES: Record<string, "octahedron" | "dodecahedron" | "icosahedron" | "torus" | "cone" | "cylinder"> = {
@@ -24,7 +25,7 @@ const ROLE_SHAPES: Record<string, "octahedron" | "dodecahedron" | "icosahedron" 
   Synthesizer: "icosahedron",
 };
 
-export function AgentAvatar({ id, name, role, color, position, isActive, isSpeaking }: AgentProps) {
+export function AgentAvatar({ id, name, role, color, position, isActive, isSpeaking, onClick }: AgentProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
@@ -88,7 +89,13 @@ export function AgentAvatar({ id, name, role, color, position, isActive, isSpeak
       </mesh>
 
       {/* Main agent shape */}
-      <mesh ref={meshRef}>
+      <mesh
+        ref={meshRef}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.(id);
+        }}
+      >
         {geometry}
         <meshStandardMaterial
           color={isActive ? activeColor : baseColor}

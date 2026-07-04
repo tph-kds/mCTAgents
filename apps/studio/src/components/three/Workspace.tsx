@@ -1,9 +1,10 @@
 "use client";
 
-import { Suspense, useMemo, useCallback } from "react";
+import { Suspense, useMemo, useCallback, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Stars, Environment } from "@react-three/drei";
 import { AgentAvatar, AgentProps } from "./AgentAvatar";
+import { AgentPopover } from "./AgentPopover";
 import { DebateArena } from "./DebateArena";
 import { ParticleBeam } from "./ParticleBeam";
 import { ClaimParticle, EvidenceParticle } from "./Particles";
@@ -19,13 +20,13 @@ export interface AgentState {
   isSpeaking: boolean;
 }
 
-const AGENT_CONFIG: Omit<AgentProps, "isActive" | "isSpeaking">[] = [
-  { id: "framer", name: "ProblemFramer", role: "ProblemFramer", color: "#3b82f6", position: [0, 0.5, 2.5] },
-  { id: "architect", name: "Architect", role: "Architect", color: "#06b6d4", position: [2.2, 0.5, 1.2] },
-  { id: "evidence", name: "EvidenceAgent", role: "Evidence", color: "#eab308", position: [2.2, 0.5, -1.2] },
-  { id: "critic", name: "Critic", role: "Critic", color: "#f97316", position: [0, 0.5, -2.5] },
-  { id: "judge", name: "Judge", role: "Judge", color: "#10b981", position: [-2.2, 0.5, -1.2] },
-  { id: "synthesizer", name: "Synthesizer", role: "Synthesizer", color: "#a855f7", position: [-2.2, 0.5, 1.2] },
+const AGENT_CONFIG: (Omit<AgentProps, "isActive" | "isSpeaking" | "onClick"> & { description: string })[] = [
+  { id: "framer", name: "ProblemFramer", role: "ProblemFramer", color: "#3b82f6", position: [0, 0.5, 2.5], description: "Frames the problem and defines scope" },
+  { id: "architect", name: "Architect", role: "Architect", color: "#06b6d4", position: [2.2, 0.5, 1.2], description: "Designs system architecture and structure" },
+  { id: "evidence", name: "EvidenceAgent", role: "Evidence", color: "#eab308", position: [2.2, 0.5, -1.2], description: "Gathers and evaluates supporting evidence" },
+  { id: "critic", name: "Critic", role: "Critic", color: "#f97316", position: [0, 0.5, -2.5], description: "Challenges claims and finds weaknesses" },
+  { id: "judge", name: "Judge", role: "Judge", color: "#10b981", position: [-2.2, 0.5, -1.2], description: "Evaluates and arbitrates between agents" },
+  { id: "synthesizer", name: "Synthesizer", role: "Synthesizer", color: "#a855f7", position: [-2.2, 0.5, 1.2], description: "Synthesizes final conclusions" },
 ];
 
 interface WorkspaceProps {
@@ -35,6 +36,7 @@ interface WorkspaceProps {
 }
 
 export function Workspace({ events, phase, round }: WorkspaceProps) {
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const agentStates = useMemo(() => {
     const states: AgentState[] = AGENT_CONFIG.map(a => ({
       ...a,
@@ -125,7 +127,7 @@ export function Workspace({ events, phase, round }: WorkspaceProps) {
 
           {/* Agent avatars */}
           {agentStates.map((agent) => (
-            <AgentAvatar key={agent.id} {...agent} />
+            <AgentAvatar key={agent.id} {...agent} onClick={setSelectedAgentId} />
           ))}
 
           {/* Particle beams */}
@@ -159,6 +161,20 @@ export function Workspace({ events, phase, round }: WorkspaceProps) {
           autoRotateSpeed={0.3}
         />
       </Canvas>
+
+      {selectedAgentId && (() => {
+        const agent = AGENT_CONFIG.find(a => a.id === selectedAgentId);
+        if (!agent) return null;
+        return (
+          <AgentPopover
+            agent={agent}
+            claims={[]}
+            objections={[]}
+            events={events}
+            onClose={() => setSelectedAgentId(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
