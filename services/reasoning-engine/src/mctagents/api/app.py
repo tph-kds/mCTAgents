@@ -50,8 +50,8 @@ async def lifespan(app: FastAPI):
     router = ModelRouter(
         providers={"default": model_provider},
         preset=ModelPreset(
-            chat_model=os.getenv("DEFAULT_CHAT_MODEL", "qwen2.5:7b"),
-            reasoning_model=os.getenv("DEFAULT_REASONING_MODEL", "deepseek-r1:7b"),
+            chat_model=os.getenv("DEFAULT_CHAT_MODEL", "Qwen/Qwen3-1.7B"),
+            reasoning_model=os.getenv("DEFAULT_REASONING_MODEL", "Qwen/Qwen3-1.7B"),
             embedding_model=os.getenv("DEFAULT_EMBEDDING_MODEL", "nomic-embed-text"),
         ),
     )
