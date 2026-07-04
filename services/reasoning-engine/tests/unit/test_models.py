@@ -153,6 +153,27 @@ class TestProblemFrame:
         assert pf.domain == "architecture"
 
 
+class TestAgentResult:
+    def test_agent_result_has_thinking_steps(self):
+        from mctagents.agents.base import AgentResult
+        from mctagents.core.protocol.thinking_step import ThinkingStep
+
+        result = AgentResult(
+            agent_id="test_agent",
+            thinking_steps=[
+                ThinkingStep(step_type="reasoning", content="thinking...", agent_id="test_agent"),
+            ],
+        )
+        assert len(result.thinking_steps) == 1
+        assert result.thinking_steps[0].content == "thinking..."
+
+    def test_agent_result_empty_thinking_steps(self):
+        from mctagents.agents.base import AgentResult
+
+        result = AgentResult(agent_id="test_agent")
+        assert result.thinking_steps == []
+
+
 class TestEvent:
     def test_minimal_event(self):
         ev = Event(

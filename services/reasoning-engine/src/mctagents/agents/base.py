@@ -12,6 +12,7 @@ from mctagents.core.protocol import (
     ProblemFrame,
     Revision,
 )
+from mctagents.core.protocol.thinking_step import ThinkingStep
 
 if TYPE_CHECKING:
     from mctagents.services.model_gateway.base import ModelProvider
@@ -44,6 +45,7 @@ class AgentResult:
     objections: list[Objection] = field(default_factory=list)
     revisions: list[dict[str, str]] = field(default_factory=list)
     events: list[Event] = field(default_factory=list)
+    thinking_steps: list[ThinkingStep] = field(default_factory=list)
     metadata: dict[str, object] = field(default_factory=dict)
 
 
