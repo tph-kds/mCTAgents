@@ -12,6 +12,7 @@ from mctagents.core.protocol import (
     EventType,
     Objection,
     Severity,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -50,8 +51,19 @@ class CriticAgent(BaseAgent):
     capabilities = ["challenge_claims", "detect_contradictions", "identify_gaps"]
 
     async def act(self, context: AgentContext) -> AgentResult:
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
+
         if not context.claims:
             return AgentResult(agent_id=self.agent_id)
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Examining {len(context.claims)} active claims for potential objections.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
 
         claims_summary = "\n".join(
             f"Claim {c.id} (type={c.claim_type.value}, confidence={c.confidence}, "
@@ -62,7 +74,7 @@ class CriticAgent(BaseAgent):
         )
 
         if not claims_summary:
-            return AgentResult(agent_id=self.agent_id)
+            return AgentResult(agent_id=self.agent_id, thinking_steps=thinking_steps)
 
         evidence_summary = ""
         if context.evidence:
@@ -99,6 +111,13 @@ class CriticAgent(BaseAgent):
             context.run_id, parsed
         )
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Found {len(objections)} genuine objections across all claims.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "criticism_complete",
             run_id=context.run_id,
@@ -109,6 +128,7 @@ class CriticAgent(BaseAgent):
             agent_id=self.agent_id,
             objections=objections,
             events=events,
+            thinking_steps=thinking_steps,
         )
 
     def _parse_response(self, content: str) -> dict[str, object]:

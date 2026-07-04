@@ -8,9 +8,11 @@ import structlog
 
 from mctagents.agents.base import AgentContext, AgentResult, BaseAgent
 from mctagents.core.protocol import (
+    Event,
     EventType,
     FinalAnswer,
     RiskItem,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -56,6 +58,9 @@ class SynthesizerAgent(BaseAgent):
     capabilities = ["create_final_answer", "summarize_reasoning"]
 
     async def act(self, context: AgentContext) -> AgentResult:
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
+
         decision = context.metadata.get("decision")
         if decision is None:
             logger.warning("no_decision_to_synthesize", run_id=context.run_id)
@@ -72,6 +77,14 @@ class SynthesizerAgent(BaseAgent):
             for c in context.claims
             if c.id in decision.rejected_claim_ids
         ]
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Synthesizing final answer from {len(accepted)} accepted claims.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
 
         accepted_summary = "\n".join(
             f"- [{c.claim_type.value}] {c.text} "
@@ -130,6 +143,14 @@ class SynthesizerAgent(BaseAgent):
             context.run_id, parsed, decision
         )
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Final answer produced with {len(final_answer.risks)} risks "
+                    f"and {len(final_answer.next_steps)} next steps.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "synthesis_complete",
             run_id=context.run_id,
@@ -140,7 +161,7 @@ class SynthesizerAgent(BaseAgent):
         events = [
             Event(
                 id=str(uuid.uuid4()),
-                event_id=f"{run_id}-final_answer_created",
+                event_id=f"{context.run_id}-final_answer_created",
                 run_id=context.run_id,
                 sequence=0,
                 type=EventType.FINAL_ANSWER_CREATED,
@@ -152,6 +173,7 @@ class SynthesizerAgent(BaseAgent):
         return AgentResult(
             agent_id=self.agent_id,
             events=events,
+            thinking_steps=thinking_steps,
             metadata={"final_answer": final_answer},
         )
 
