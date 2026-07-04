@@ -1,3 +1,6 @@
+import os
+from dataclasses import dataclass, field
+
 from pydantic_settings import BaseSettings
 
 
@@ -10,3 +13,31 @@ class ModelGatewayConfig(BaseSettings):
     max_retries: int = 3
 
     model_config = {"env_prefix": "MODEL_GATEWAY_"}
+
+
+@dataclass
+class SGLangConfig:
+    """Configuration for SGLang model provider."""
+
+    base_url: str = field(
+        default_factory=lambda: os.getenv(
+            "SGLANG_BASE_URL", "http://localhost:30000",
+        ),
+    )
+    model: str = field(
+        default_factory=lambda: os.getenv(
+            "SGLANG_MODEL", "Qwen/Qwen3-1.7B",
+        ),
+    )
+    context_length: int = field(
+        default_factory=lambda: int(
+            os.getenv("SGLANG_CONTEXT_LENGTH", "4096"),
+        ),
+    )
+    api_key: str = field(
+        default_factory=lambda: os.getenv("SGLANG_API_KEY", ""),
+    )
+
+    @classmethod
+    def from_env(cls) -> "SGLangConfig":
+        return cls()
