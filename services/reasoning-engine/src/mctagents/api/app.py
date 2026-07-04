@@ -4,12 +4,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
 import uuid
+import httpx
+import logging
+
+logger = logging.getLogger(__name__)
 
 from mctagents.engine.reasoning_engine import ReasoningEngine
 from mctagents.services.event_service import EventService
 from mctagents.services.storage_service import StorageService
 from mctagents.services.model_gateway.router import ModelRouter, ModelPreset, TaskType
 from mctagents.services.model_gateway.ollama import OllamaProvider
+from mctagents.services.model_gateway.openai_compatible import OpenAICompatibleProvider
+from mctagents.services.model_gateway.config import SGLangConfig
 
 _reasoning_engine: ReasoningEngine | None = None
 _event_service: EventService | None = None
@@ -23,9 +29,26 @@ async def lifespan(app: FastAPI):
     ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     db_url = os.getenv("DATABASE_URL", "postgres://mctagents:devpassword@localhost:5432/mctagents")
 
-    ollama = OllamaProvider(base_url=ollama_url)
+    sglang_config = SGLangConfig.from_env()
+    model_provider = None
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{sglang_config.base_url}/v1/models", timeout=5.0)
+            if resp.status_code == 200:
+                model_provider = OpenAICompatibleProvider(
+                    base_url=sglang_config.base_url,
+                    api_key="not-needed",
+                )
+                logger.info("Using SGLang provider", extra={"base_url": sglang_config.base_url})
+    except Exception:
+        pass
+
+    if model_provider is None:
+        logger.warning("SGLang not available, falling back to Ollama")
+        model_provider = OllamaProvider(base_url=ollama_url)
+
     router = ModelRouter(
-        providers={"ollama": ollama},
+        providers={"default": model_provider},
         preset=ModelPreset(
             chat_model=os.getenv("DEFAULT_CHAT_MODEL", "qwen2.5:7b"),
             reasoning_model=os.getenv("DEFAULT_REASONING_MODEL", "deepseek-r1:7b"),

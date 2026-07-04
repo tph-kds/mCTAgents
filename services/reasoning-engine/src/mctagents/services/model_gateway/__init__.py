@@ -10,7 +10,7 @@ from mctagents.services.model_gateway.circuit_breaker import (
     CircuitState,
     with_retry,
 )
-from mctagents.services.model_gateway.config import ModelGatewayConfig
+from mctagents.services.model_gateway.config import ModelGatewayConfig, SGLangConfig
 from mctagents.services.model_gateway.ollama import OllamaProvider
 from mctagents.services.model_gateway.openai_compatible import OpenAICompatibleProvider
 from mctagents.services.model_gateway.router import (
@@ -28,6 +28,7 @@ __all__ = [
     "EmbeddingResponse",
     "ModelGatewayConfig",
     "ModelPreset",
+    "SGLangConfig",
     "ModelProvider",
     "ModelRouter",
     "OllamaProvider",
