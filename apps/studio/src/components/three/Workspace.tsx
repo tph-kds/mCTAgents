@@ -8,7 +8,7 @@ import { AgentPopover } from "./AgentPopover";
 import { DebateArena } from "./DebateArena";
 import { ParticleBeam } from "./ParticleBeam";
 import { ClaimParticle, EvidenceParticle } from "./Particles";
-import type { SSEEvent } from "@/lib/types";
+import type { Claim, Objection, SSEEvent } from "@/lib/types";
 
 export interface AgentState {
   id: string;
@@ -21,21 +21,23 @@ export interface AgentState {
 }
 
 const AGENT_CONFIG: (Omit<AgentProps, "isActive" | "isSpeaking" | "onClick"> & { description: string })[] = [
-  { id: "framer", name: "ProblemFramer", role: "ProblemFramer", color: "#3b82f6", position: [0, 0.5, 2.5], description: "Frames the problem and defines scope" },
-  { id: "architect", name: "Architect", role: "Architect", color: "#06b6d4", position: [2.2, 0.5, 1.2], description: "Designs system architecture and structure" },
-  { id: "evidence", name: "EvidenceAgent", role: "Evidence", color: "#eab308", position: [2.2, 0.5, -1.2], description: "Gathers and evaluates supporting evidence" },
-  { id: "critic", name: "Critic", role: "Critic", color: "#f97316", position: [0, 0.5, -2.5], description: "Challenges claims and finds weaknesses" },
-  { id: "judge", name: "Judge", role: "Judge", color: "#10b981", position: [-2.2, 0.5, -1.2], description: "Evaluates and arbitrates between agents" },
-  { id: "synthesizer", name: "Synthesizer", role: "Synthesizer", color: "#a855f7", position: [-2.2, 0.5, 1.2], description: "Synthesizes final conclusions" },
+  { id: "problem_framer", name: "Problem Framer", role: "Problem Framer", color: "#3b82f6", position: [0, 0.5, 2.5], description: "Frames the problem and defines scope" },
+  { id: "architect_agent", name: "Architect", role: "Architect", color: "#06b6d4", position: [2.2, 0.5, 1.2], description: "Designs system architecture and structure" },
+  { id: "evidence_agent", name: "Evidence Researcher", role: "Evidence", color: "#eab308", position: [2.2, 0.5, -1.2], description: "Gathers and evaluates supporting evidence" },
+  { id: "critic_agent", name: "Critic", role: "Critic", color: "#f97316", position: [0, 0.5, -2.5], description: "Challenges claims and finds weaknesses" },
+  { id: "judge_agent", name: "Judge", role: "Judge", color: "#10b981", position: [-2.2, 0.5, -1.2], description: "Evaluates and arbitrates between agents" },
+  { id: "synthesizer_agent", name: "Synthesizer", role: "Synthesizer", color: "#a855f7", position: [-2.2, 0.5, 1.2], description: "Synthesizes final conclusions" },
 ];
 
 interface WorkspaceProps {
   events: SSEEvent[];
   phase: string;
   round: number;
+  claims?: Claim[];
+  objections?: Objection[];
 }
 
-export function Workspace({ events, phase, round }: WorkspaceProps) {
+export function Workspace({ events, phase, round, claims, objections }: WorkspaceProps) {
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const agentStates = useMemo(() => {
     const states: AgentState[] = AGENT_CONFIG.map(a => ({
@@ -168,8 +170,8 @@ export function Workspace({ events, phase, round }: WorkspaceProps) {
         return (
           <AgentPopover
             agent={agent}
-            claims={[]}
-            objections={[]}
+            claims={claims || []}
+            objections={objections || []}
             events={events}
             onClose={() => setSelectedAgentId(null)}
           />

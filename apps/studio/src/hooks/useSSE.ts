@@ -29,11 +29,9 @@ export function useSSE(runId: string | null) {
       try {
         const parsed = JSON.parse(e.data);
         setEvents((prev) => [...prev, parsed as SSEEvent]);
-        if (parsed.type === "agent_started" || parsed.type === "tool_called" || parsed.type === "tool_result") {
-          const payload = parsed.payload as Record<string, unknown>;
-          if (payload.thinking_steps && Array.isArray(payload.thinking_steps)) {
-            setThinkingSteps(prev => [...prev, ...payload.thinking_steps as ThinkingStep[]]);
-          }
+        const payload = parsed.payload as Record<string, unknown>;
+        if (payload && Array.isArray(payload.thinking_steps)) {
+          setThinkingSteps(prev => [...prev, ...payload.thinking_steps as ThinkingStep[]]);
         }
       } catch { /* ignore malformed */ }
     };

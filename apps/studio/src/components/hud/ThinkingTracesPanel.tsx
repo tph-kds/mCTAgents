@@ -38,6 +38,7 @@ interface ThinkingTracesPanelProps {
 
 export function ThinkingTracesPanel({ steps }: ThinkingTracesPanelProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const visibleSteps = steps.slice(-200);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -52,17 +53,17 @@ export function ThinkingTracesPanel({ steps }: ThinkingTracesPanelProps) {
           Thinking Traces
         </span>
         <span className="text-[10px] text-white/30 bg-white/5 px-1.5 py-0.5 rounded">
-          {steps.length}
+          {visibleSteps.length}{steps.length > 200 ? ` / ${steps.length}` : ""}
         </span>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
-        {steps.length === 0 ? (
+        {visibleSteps.length === 0 ? (
           <div className="text-[10px] text-white/30 text-center py-4">
             Waiting for agent activity...
           </div>
         ) : (
-          steps.map((step, i) => (
+          visibleSteps.map((step, i) => (
             <div
               key={i}
               className={`border-l-2 pl-2 py-1 ${AGENT_COLORS[step.agent_id] || "text-white/50 border-white/20"}`}

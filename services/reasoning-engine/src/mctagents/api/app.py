@@ -40,6 +40,7 @@ async def lifespan(app: FastAPI):
                     api_key="not-needed",
                 )
                 logger.info("Using SGLang provider", extra={"base_url": sglang_config.base_url})
+                logger.info("Note: OpenAICompatibleProvider does not accept context_length param; SGLang handles this server-side")
     except Exception:
         pass
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Claim, Objection, SSEEvent } from "@/lib/types";
 
 interface AgentInfo {
@@ -47,6 +47,14 @@ export function AgentPopover({
   onClose,
 }: AgentPopoverProps) {
   const [activeTab, setActiveTab] = useState<Tab>("claims");
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose]);
 
   const agentClaims = claims.filter((c) => c.author_agent_id === agent.id);
   const agentObjections = objections.filter((o) => o.author_agent_id === agent.id);
