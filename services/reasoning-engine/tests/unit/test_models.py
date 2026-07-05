@@ -66,12 +66,12 @@ class TestEvidence:
             id="e1", run_id="r1", source_type=SourceType.UPLOADED_DOCUMENT,
             source_ref="doc.pdf", summary="test evidence",
         )
-        assert ev.reliability_score == 0.0
+        assert ev.reliability_score == 0.5
         assert ev.supports_claim_ids == []
 
     def test_full_evidence(self):
         ev = Evidence(
-            id="e1", run_id="r1", source_type=SourceType.EXTERNAL_KNOWLEDGE,
+            id="e1", run_id="r1", source_type=SourceType.WEB_SOURCE,
             source_ref="wiki", summary="test",
             reliability_score=0.9,
             supports_claim_ids=["c1"], attacks_claim_ids=["c2"],

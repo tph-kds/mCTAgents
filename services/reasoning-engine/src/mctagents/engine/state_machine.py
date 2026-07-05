@@ -90,7 +90,7 @@ class StateMachine:
         logger.info(
             "state_transition",
             from_phase=old.value,
-            event=event,
+            transition_event=event,
             to_phase=self._phase.value,
         )
         return self._phase
