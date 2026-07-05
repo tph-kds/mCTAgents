@@ -274,6 +274,7 @@ logs/
 
 # agents
 .agents/*
+.opencode/*
 .jcode/*
 .superpowers/*
 
