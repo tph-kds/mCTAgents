@@ -31,7 +31,7 @@ class DocumentChunk(BaseModel):
     section: str | None = None
     token_count: int | None = Field(default=None, ge=0)
     embedding_id: str | None = Field(
-        default=None, max_length=128, description="Reference to vector embedding"
+        default=None, max_length=128, description="Reference to vector embedding",
     )
     metadata: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=datetime.now)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -11,6 +11,7 @@ from mctagents.core.protocol import (
     ClaimScores,
     ClaimStatus,
     Decision,
+    Event,
     EventType,
     ThinkingStep,
 )
@@ -136,7 +137,7 @@ class JudgeAgent(BaseAgent):
 
         parsed = self._parse_response(response.content)
         decision, events = self._build_decision(
-            context.run_id, parsed, context
+            context.run_id, parsed, context,
         )
 
         thinking_steps.append(ThinkingStep(
@@ -185,7 +186,7 @@ class JudgeAgent(BaseAgent):
         data: dict[str, object],
         context: AgentContext,
     ) -> tuple[Decision, list[Event]]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         accepted: list[str] = []
         rejected: list[str] = []
         uncertain: list[str] = []
@@ -282,7 +283,7 @@ class JudgeAgent(BaseAgent):
                     "uncertain_count": len(uncertain),
                     "confidence": overall_confidence,
                 },
-            )
+            ),
         ]
 
         return decision, events

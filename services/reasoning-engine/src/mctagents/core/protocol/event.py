@@ -9,7 +9,7 @@ from .enums import EventType
 class Event(BaseModel):
     id: str = Field(..., description="Unique identifier (UUID)")
     event_id: str = Field(
-        ..., max_length=128, description="Unique event identifier for idempotency"
+        ..., max_length=128, description="Unique event identifier for idempotency",
     )
     run_id: str = Field(..., description="Reference to the parent run (UUID)")
     sequence: int = Field(..., ge=0, description="Monotonic sequence within the run")

@@ -1,6 +1,7 @@
 """Tests for the CCSR state machine."""
 
 import pytest
+
 from mctagents.engine.state_machine import (
     InvalidTransitionError,
     RunPhase,

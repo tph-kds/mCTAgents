@@ -1,6 +1,7 @@
 """Tests for the evidence reliability scorer."""
 
 import pytest
+
 from mctagents.scoring.reliability import EvidenceReliabilityScorer
 
 

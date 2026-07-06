@@ -1,6 +1,7 @@
 """Tests for the document chunker."""
 
 import pytest
+
 from mctagents.ingestion.chunker import DocumentChunker
 from mctagents.ingestion.parser import ContentBlock
 

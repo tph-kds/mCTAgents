@@ -26,7 +26,7 @@ class Claim(BaseModel):
     requires_evidence: bool = False
     evidence_status: EvidenceStatus = EvidenceStatus.UNSUPPORTED
     parent_claim_id: str | None = Field(
-        default=None, description="UUID of the claim this is a revision of"
+        default=None, description="UUID of the claim this is a revision of",
     )
     rejection_reason: str | None = None
     scores: ClaimScores | None = None

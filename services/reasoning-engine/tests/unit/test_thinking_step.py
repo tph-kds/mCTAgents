@@ -1,4 +1,3 @@
-import pytest
 from mctagents.core.protocol.thinking_step import ThinkingStep
 
 

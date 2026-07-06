@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
 from mctagents.agents.base import AgentContext, AgentResult, BaseAgent
 from mctagents.core.protocol import (
-    Claim,
     Event,
     EventType,
     ProblemFrame,
@@ -106,7 +105,7 @@ class ProblemFramer(BaseAgent):
                     type=EventType.PROBLEM_FRAMED,
                     agent_id=self.agent_id,
                     payload={"problem_frame_id": problem_frame.id},
-                )
+                ),
             ],
             metadata={"problem_frame": problem_frame},
         )
@@ -132,7 +131,7 @@ class ProblemFramer(BaseAgent):
             }
 
     def _build_problem_frame(
-        self, run_id: str, data: dict[str, object]
+        self, run_id: str, data: dict[str, object],
     ) -> ProblemFrame:
         risk_str = str(data.get("risk_level", "medium")).lower()
         try:
@@ -152,9 +151,9 @@ class ProblemFramer(BaseAgent):
             risk_level=risk_level,
             domain=str(data.get("domain", "")) or None,
             requires_business_decision=bool(
-                data.get("requires_business_decision", False)
+                data.get("requires_business_decision", False),
             ),
             requires_research=bool(data.get("requires_research", False)),
             requires_code=bool(data.get("requires_code", False)),
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )

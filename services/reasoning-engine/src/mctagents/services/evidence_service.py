@@ -36,19 +36,19 @@ class EvidenceService:
             return resp.json().get("results", [])
         except httpx.HTTPStatusError as exc:
             logger.error(
-                "Evidence search failed: %s %s", exc.response.status_code, exc.response.text
+                "Evidence search failed: %s %s", exc.response.status_code, exc.response.text,
             )
             raise EvidenceServiceError(
-                f"Search returned {exc.response.status_code}"
+                f"Search returned {exc.response.status_code}",
             ) from exc
         except httpx.RequestError as exc:
             logger.error("Evidence search connection error: %s", exc)
             raise EvidenceServiceError(
-                f"Could not reach evidence-service at {self.base_url}"
+                f"Could not reach evidence-service at {self.base_url}",
             ) from exc
 
     async def upload_document(
-        self, filename: str, content: bytes, content_type: str
+        self, filename: str, content: bytes, content_type: str,
     ) -> dict:
         """Upload a document for indexing."""
         try:
@@ -65,12 +65,12 @@ class EvidenceService:
                 exc.response.text,
             )
             raise EvidenceServiceError(
-                f"Upload returned {exc.response.status_code}"
+                f"Upload returned {exc.response.status_code}",
             ) from exc
         except httpx.RequestError as exc:
             logger.error("Document upload connection error: %s", exc)
             raise EvidenceServiceError(
-                f"Could not reach evidence-service at {self.base_url}"
+                f"Could not reach evidence-service at {self.base_url}",
             ) from exc
 
     async def health(self) -> dict:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import structlog
 
@@ -58,7 +58,7 @@ class DebateController:
 
         confidence = float(context.get("confidence", 0.0))
         acceptance_threshold = float(
-            self._policy.get("confidence_threshold_for_acceptance", 0.7)
+            self._policy.get("confidence_threshold_for_acceptance", 0.7),
         )
         if confidence >= acceptance_threshold:
             logger.info(
@@ -76,7 +76,7 @@ class DebateController:
             return False
 
         escalation_threshold = float(
-            self._policy.get("escalation_threshold", 0.5)
+            self._policy.get("escalation_threshold", 0.5),
         )
         if confidence < escalation_threshold and self.current_round < self.max_rounds:
             logger.info(
@@ -110,7 +110,7 @@ class DebateController:
 
         if len(last_two) == 2:
             delta = abs(
-                last_two[1].average_confidence - last_two[0].average_confidence
+                last_two[1].average_confidence - last_two[0].average_confidence,
             )
             if delta < 0.05 and last_two[1].objections_raised == 0:
                 return True

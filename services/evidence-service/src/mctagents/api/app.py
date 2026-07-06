@@ -306,7 +306,7 @@ async def delete_document(document_id: str) -> dict:
     vs = _get_vector_store()
 
     try:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
         vs.client.delete(
             collection_name="documents",
             points_selector=Filter(
@@ -314,7 +314,7 @@ async def delete_document(document_id: str) -> dict:
                     FieldCondition(
                         key="document_id",
                         match=MatchValue(value=document_id),
-                    )
+                    ),
                 ],
             ),
         )

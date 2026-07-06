@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Protocol
 
 import structlog
@@ -26,7 +26,11 @@ from mctagents.core.protocol import (
     Revision,
 )
 from mctagents.engine.debate_controller import DebateController, RoundSnapshot
-from mctagents.engine.state_machine import InvalidTransitionError, RunPhase, StateMachine
+from mctagents.engine.state_machine import (
+    InvalidTransitionError,
+    RunPhase,
+    StateMachine,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -92,7 +96,7 @@ class ReasoningEngine:
         )
 
         await self._emit(
-            run_id, EventType.RUN_STARTED, {"problem": problem[:500], "policy": policy}
+            run_id, EventType.RUN_STARTED, {"problem": problem[:500], "policy": policy},
         )
 
         try:
@@ -115,12 +119,12 @@ class ReasoningEngine:
                     break
 
                 snapshot = self._make_snapshot(
-                    debate_round, context, decision
+                    debate_round, context, decision,
                 )
                 debate.record_round(snapshot)
 
                 should_continue = await debate.should_continue(
-                    {"confidence": decision.confidence}
+                    {"confidence": decision.confidence},
                 )
 
                 if not should_continue or not decision.needs_more_debate:
@@ -154,7 +158,7 @@ class ReasoningEngine:
             raise
 
     async def _phase_framing(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         state.transition("start")
         await self._emit(
@@ -180,7 +184,7 @@ class ReasoningEngine:
         )
 
     async def _phase_society_planning(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         state.transition("problem_framed")
         await self._emit(
@@ -197,7 +201,7 @@ class ReasoningEngine:
         )
 
     async def _phase_claim_proposal(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         current_phase = state.phase
         if current_phase == RunPhase.ESCALATION:
@@ -243,13 +247,13 @@ class ReasoningEngine:
         )
 
     async def _phase_evidence(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         if state.phase == RunPhase.EVIDENCE_ATTACHMENT:
             pass
         else:
             state.transition("claims_proposed") if state.can_transition(
-                "claims_proposed"
+                "claims_proposed",
             ) else None
 
         await self._emit(
@@ -276,7 +280,7 @@ class ReasoningEngine:
         )
 
     async def _phase_criticism(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         await self._emit(
             context.run_id,
@@ -295,7 +299,7 @@ class ReasoningEngine:
             for claim in context.claims:
                 if claim.id == obj.target_claim_id:
                     claim.status = ClaimStatus.CHALLENGED
-                    claim.updated_at = datetime.now(timezone.utc)
+                    claim.updated_at = datetime.now(UTC)
 
         state.transition("criticism_complete")
         await self._emit(
@@ -305,7 +309,7 @@ class ReasoningEngine:
         )
 
     async def _phase_revision(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         await self._emit(
             context.run_id,
@@ -343,7 +347,7 @@ class ReasoningEngine:
         )
 
     async def _phase_judging(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> Decision | None:
         await self._emit(
             context.run_id,
@@ -373,11 +377,11 @@ class ReasoningEngine:
             elif claim.id in decision.rejected_claim_ids:
                 claim.status = ClaimStatus.REJECTED
                 claim.rejection_reason = decision.score_breakdown.get(
-                    claim.id, {}
+                    claim.id, {},
                 ).get("rejection_reason")
             elif claim.id in decision.uncertain_claim_ids:
                 claim.status = ClaimStatus.UNCERTAIN
-            claim.updated_at = datetime.now(timezone.utc)
+            claim.updated_at = datetime.now(UTC)
             if self._storage:
                 await self._storage.save_claim(claim)
 
@@ -400,7 +404,7 @@ class ReasoningEngine:
         return decision
 
     async def _phase_synthesis(
-        self, state: StateMachine, context: AgentContext
+        self, state: StateMachine, context: AgentContext,
     ) -> None:
         await self._emit(
             context.run_id,
@@ -425,7 +429,7 @@ class ReasoningEngine:
         )
 
     async def _process_result(
-        self, context: AgentContext, result: AgentResult
+        self, context: AgentContext, result: AgentResult,
     ) -> None:
         for event in result.events:
             if self._event_service:

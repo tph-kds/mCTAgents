@@ -1,7 +1,8 @@
 """Tests for the EventService."""
 
 import pytest
-from mctagents.core.protocol import Event, EventType
+
+from mctagents.core.protocol import EventType
 from mctagents.services.event_service import EventService
 
 

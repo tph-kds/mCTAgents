@@ -1,7 +1,8 @@
 """Tests for ArchitectAgent thinking step emissions."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from mctagents.agents.architect import ArchitectAgent
 from mctagents.agents.base import AgentContext
@@ -13,8 +14,8 @@ def mock_provider():
     provider = AsyncMock()
     provider.chat = AsyncMock(
         return_value=MagicMock(
-            content='{"claims": [], "revisions": []}'
-        )
+            content='{"claims": [], "revisions": []}',
+        ),
     )
     return provider
 
