@@ -16,9 +16,10 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
-      - run: cd packages/core-protocol && pnpm install && pnpm typecheck
+      - run: pnpm install --frozen-lockfile
+      - run: cd packages/core-protocol && pnpm typecheck
 
   python-tests:
     name: Python Tests
@@ -54,9 +55,10 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
-      - run: cd apps/studio && pnpm install && pnpm build
+      - run: pnpm install --frozen-lockfile
+      - run: cd apps/studio && pnpm build
 
   lint:
     name: Lint
@@ -72,5 +74,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: cd apps/studio && pnpm install && pnpm lint
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: cd apps/studio && pnpm lint
