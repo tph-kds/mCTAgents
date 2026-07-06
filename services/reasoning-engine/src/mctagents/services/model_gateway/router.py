@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 
 from mctagents.services.model_gateway.base import ModelProvider
@@ -49,7 +49,6 @@ class ModelRouter:
 
         if task_type == TaskType.EMBEDDING:
             return provider, self.preset.embedding_model
-        elif model_kind == "reasoning":
+        if model_kind == "reasoning":
             return provider, self.preset.reasoning_model
-        else:
-            return provider, self.preset.chat_model
+        return provider, self.preset.chat_model

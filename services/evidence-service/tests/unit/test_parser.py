@@ -1,8 +1,9 @@
 """Tests for the document parser."""
 
+
 import pytest
-from pathlib import Path
-from mctagents.ingestion.parser import DocumentParser, ContentBlock
+
+from mctagents.ingestion.parser import DocumentParser
 
 
 @pytest.fixture

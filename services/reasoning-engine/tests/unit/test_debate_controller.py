@@ -1,6 +1,7 @@
 """Tests for the DebateController."""
 
 import pytest
+
 from mctagents.engine.debate_controller import DebateController, RoundSnapshot
 from mctagents.engine.state_machine import StateMachine
 

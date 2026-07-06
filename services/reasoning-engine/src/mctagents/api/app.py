@@ -1,21 +1,22 @@
+import asyncio
+import logging
+import uuid
 from contextlib import asynccontextmanager
+
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-import asyncio
-import uuid
-import httpx
-import logging
 
 logger = logging.getLogger(__name__)
 
 from mctagents.engine.reasoning_engine import ReasoningEngine
 from mctagents.services.event_service import EventService
-from mctagents.services.storage_service import StorageService
-from mctagents.services.model_gateway.router import ModelRouter, ModelPreset, TaskType
+from mctagents.services.model_gateway.config import SGLangConfig
 from mctagents.services.model_gateway.ollama import OllamaProvider
 from mctagents.services.model_gateway.openai_compatible import OpenAICompatibleProvider
-from mctagents.services.model_gateway.config import SGLangConfig
+from mctagents.services.model_gateway.router import ModelPreset, ModelRouter
+from mctagents.services.storage_service import StorageService
 
 _reasoning_engine: ReasoningEngine | None = None
 _event_service: EventService | None = None
@@ -131,8 +132,9 @@ async def get_run(run_id: str):
 
 @app.get("/v1/runs/{run_id}/events")
 async def stream_events(run_id: str):
-    from fastapi.responses import StreamingResponse
     import json
+
+    from fastapi.responses import StreamingResponse
 
     queue = _event_service.subscribe(run_id)
 
@@ -157,7 +159,7 @@ async def stream_events(run_id: str):
                         "created_at": event.created_at.isoformat(),
                     })
                     yield f"event: {event.type}\ndata: {data}\n\n"
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     yield ": keepalive\n\n"
         finally:
             _event_service.unsubscribe(run_id, queue)

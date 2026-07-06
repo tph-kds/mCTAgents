@@ -1,14 +1,13 @@
 import json
 import logging
-from datetime import datetime
 
 import asyncpg
 
 from mctagents.core.protocol import (
     Claim,
     Decision,
-    Evidence,
     Event,
+    Evidence,
     FinalAnswer,
     Objection,
     ProblemFrame,
@@ -28,7 +27,7 @@ class StorageService:
     async def connect(self) -> None:
         """Create the connection pool."""
         self._pool = await asyncpg.create_pool(
-            self.database_url, min_size=2, max_size=10
+            self.database_url, min_size=2, max_size=10,
         )
         logger.info("StorageService connected to %s", self.database_url)
 
@@ -42,7 +41,7 @@ class StorageService:
     # ── Runs ──────────────────────────────────────────────────────────
 
     async def save_run(
-        self, run_id: str, status: str, mode: str = "balanced_reasoning"
+        self, run_id: str, status: str, mode: str = "balanced_reasoning",
     ) -> None:
         """Create or update a run record."""
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
@@ -68,7 +67,7 @@ class StorageService:
     async def get_run(self, run_id: str) -> dict | None:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             row = await conn.fetchrow(
-                "SELECT * FROM runs WHERE id = $1", run_id
+                "SELECT * FROM runs WHERE id = $1", run_id,
             )
             return dict(row) if row else None
 
@@ -134,7 +133,7 @@ class StorageService:
     async def get_claims(self, run_id: str) -> list[dict]:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             rows = await conn.fetch(
-                "SELECT * FROM claims WHERE run_id = $1", run_id
+                "SELECT * FROM claims WHERE run_id = $1", run_id,
             )
             return [dict(r) for r in rows]
 
@@ -162,7 +161,7 @@ class StorageService:
     async def get_evidence(self, run_id: str) -> list[dict]:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             rows = await conn.fetch(
-                "SELECT * FROM evidence WHERE run_id = $1", run_id
+                "SELECT * FROM evidence WHERE run_id = $1", run_id,
             )
             return [dict(r) for r in rows]
 
@@ -189,7 +188,7 @@ class StorageService:
     async def get_objections(self, run_id: str) -> list[dict]:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             rows = await conn.fetch(
-                "SELECT * FROM objections WHERE run_id = $1", run_id
+                "SELECT * FROM objections WHERE run_id = $1", run_id,
             )
             return [dict(r) for r in rows]
 
@@ -216,7 +215,7 @@ class StorageService:
     async def get_revisions(self, run_id: str) -> list[dict]:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             rows = await conn.fetch(
-                "SELECT * FROM revisions WHERE run_id = $1", run_id
+                "SELECT * FROM revisions WHERE run_id = $1", run_id,
             )
             return [dict(r) for r in rows]
 
@@ -246,7 +245,7 @@ class StorageService:
     async def get_decision(self, run_id: str) -> dict | None:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             row = await conn.fetchrow(
-                "SELECT * FROM decisions WHERE run_id = $1", run_id
+                "SELECT * FROM decisions WHERE run_id = $1", run_id,
             )
             return dict(row) if row else None
 
@@ -274,7 +273,7 @@ class StorageService:
     async def get_final_answer(self, run_id: str) -> dict | None:
         async with self._pool.acquire() as conn:  # type: ignore[union-attr]
             row = await conn.fetchrow(
-                "SELECT * FROM final_answers WHERE run_id = $1", run_id
+                "SELECT * FROM final_answers WHERE run_id = $1", run_id,
             )
             return dict(row) if row else None
 

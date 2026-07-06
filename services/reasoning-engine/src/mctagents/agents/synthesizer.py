@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -140,7 +140,7 @@ class SynthesizerAgent(BaseAgent):
 
         parsed = self._parse_response(response.content)
         final_answer = self._build_final_answer(
-            context.run_id, parsed, decision
+            context.run_id, parsed, decision,
         )
 
         thinking_steps.append(ThinkingStep(
@@ -167,7 +167,7 @@ class SynthesizerAgent(BaseAgent):
                 type=EventType.FINAL_ANSWER_CREATED,
                 agent_id=self.agent_id,
                 payload={"final_answer_id": final_answer.id},
-            )
+            ),
         ]
 
         return AgentResult(
@@ -199,7 +199,7 @@ class SynthesizerAgent(BaseAgent):
         data: dict[str, object],
         decision,
     ) -> FinalAnswer:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         risks: list[RiskItem] = []
         for risk_data in data.get("risks") or []:
@@ -208,7 +208,7 @@ class SynthesizerAgent(BaseAgent):
                     description=str(risk_data.get("description", "")),
                     severity=str(risk_data.get("severity", "medium")),
                     mitigation=str(risk_data.get("mitigation", "")) or None,
-                )
+                ),
             )
 
         return FinalAnswer(

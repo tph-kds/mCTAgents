@@ -10,11 +10,11 @@ class ArgumentEdge(BaseModel):
     id: str = Field(..., description="Unique identifier (UUID)")
     run_id: str = Field(..., description="Reference to the parent run (UUID)")
     source_type: EdgeEntityType = Field(
-        ..., description="Entity type of the source node"
+        ..., description="Entity type of the source node",
     )
     source_id: str = Field(..., description="UUID of the source entity")
     target_type: EdgeEntityType = Field(
-        ..., description="Entity type of the target node"
+        ..., description="Entity type of the target node",
     )
     target_id: str = Field(..., description="UUID of the target entity")
     edge_type: EdgeType = Field(..., description="Relationship type")

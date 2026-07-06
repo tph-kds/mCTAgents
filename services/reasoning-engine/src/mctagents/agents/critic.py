@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
 from mctagents.agents.base import AgentContext, AgentResult, BaseAgent
 from mctagents.core.protocol import (
     ClaimStatus,
+    Event,
     EventType,
     Objection,
     Severity,
@@ -108,7 +109,7 @@ class CriticAgent(BaseAgent):
 
         parsed = self._parse_response(response.content)
         objections, events = self._build_objections(
-            context.run_id, parsed
+            context.run_id, parsed,
         )
 
         thinking_steps.append(ThinkingStep(
@@ -143,9 +144,9 @@ class CriticAgent(BaseAgent):
             return {"objections": []}
 
     def _build_objections(
-        self, run_id: str, data: dict[str, object]
+        self, run_id: str, data: dict[str, object],
     ) -> tuple[list[Objection], list[Event]]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         objections: list[Objection] = []
         events: list[Event] = []
 
@@ -181,7 +182,7 @@ class CriticAgent(BaseAgent):
                         "target_claim_id": objection.target_claim_id,
                         "severity": severity.value,
                     },
-                )
+                ),
             )
 
         return objections, events

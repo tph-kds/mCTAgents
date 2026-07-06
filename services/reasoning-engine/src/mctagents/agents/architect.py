@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
@@ -11,6 +11,7 @@ from mctagents.core.protocol import (
     Claim,
     ClaimStatus,
     ClaimType,
+    Event,
     EventType,
     ThinkingStep,
 )
@@ -225,7 +226,7 @@ class ArchitectAgent(BaseAgent):
 
         parsed = self._parse_response(response.content)
         new_claims, revision_dicts = self._build_revisions(
-            context.run_id, parsed, challenged
+            context.run_id, parsed, challenged,
         )
 
         thinking_steps.append(ThinkingStep(
@@ -274,9 +275,9 @@ class ArchitectAgent(BaseAgent):
             return {"claims": [], "revisions": []}
 
     def _build_claims(
-        self, run_id: str, data: dict[str, object]
+        self, run_id: str, data: dict[str, object],
     ) -> list[Claim]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         claims: list[Claim] = []
         for item in data.get("claims") or []:
             claim_type_str = str(item.get("claim_type", "general"))
@@ -297,7 +298,7 @@ class ArchitectAgent(BaseAgent):
                     requires_evidence=bool(item.get("requires_evidence", False)),
                     created_at=now,
                     updated_at=now,
-                )
+                ),
             )
         return claims
 
@@ -308,7 +309,7 @@ class ArchitectAgent(BaseAgent):
         original_claims: list[Claim],
     ) -> tuple[list[Claim], list[dict[str, str]]]:
         claim_map = {c.id: c for c in original_claims}
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         new_claims: list[Claim] = []
         revision_dicts: list[dict[str, str]] = []
 
@@ -319,7 +320,7 @@ class ArchitectAgent(BaseAgent):
 
             original = claim_map[old_id]
             claim_type_str = str(
-                item.get("claim_type", original.claim_type.value)
+                item.get("claim_type", original.claim_type.value),
             )
             try:
                 claim_type = ClaimType(claim_type_str)
@@ -346,7 +347,7 @@ class ArchitectAgent(BaseAgent):
                     "old_claim_id": old_id,
                     "new_claim_id": new_claim.id,
                     "reason": str(item.get("reason", "Revised in response to objection")),
-                }
+                },
             )
 
         return new_claims, revision_dicts

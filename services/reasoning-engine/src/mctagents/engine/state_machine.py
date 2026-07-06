@@ -30,7 +30,7 @@ class InvalidTransitionError(Exception):
         self.current = current
         self.event = event
         super().__init__(
-            f"Invalid transition: {current.value} + '{event}'"
+            f"Invalid transition: {current.value} + '{event}'",
         )
 
 
@@ -99,6 +99,6 @@ class StateMachine:
         return (self._phase, event) in self.VALID_TRANSITIONS
 
     def should_escalate(
-        self, confidence: float, threshold: float = 0.5
+        self, confidence: float, threshold: float = 0.5,
     ) -> bool:
         return confidence < threshold

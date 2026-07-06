@@ -1,5 +1,5 @@
 import json
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 import httpx
 
@@ -69,7 +69,7 @@ class OllamaProvider(ModelProvider):
             payload["format"] = "json"
 
         async with self.client.stream(
-            "POST", f"{self.base_url}/api/chat", json=payload
+            "POST", f"{self.base_url}/api/chat", json=payload,
         ) as resp:
             resp.raise_for_status()
             async for line in resp.aiter_lines():

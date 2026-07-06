@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import structlog
 
 from mctagents.agents.base import AgentContext, AgentResult, BaseAgent
 from mctagents.core.protocol import (
     ClaimStatus,
-    Evidence,
+    Event,
     EventType,
+    Evidence,
     SourceType,
     ThinkingStep,
 )
@@ -122,7 +123,7 @@ class EvidenceAgent(BaseAgent):
 
         parsed = self._parse_response(response.content)
         evidence_items, events = self._build_evidence(
-            context.run_id, parsed, unsupported
+            context.run_id, parsed, unsupported,
         )
 
         thinking_steps.append(ThinkingStep(
@@ -163,7 +164,7 @@ class EvidenceAgent(BaseAgent):
         data: dict[str, object],
         claims: list,
     ) -> tuple[list[Evidence], list[Event]]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         evidence_items: list[Evidence] = []
         events: list[Event] = []
 
@@ -172,7 +173,7 @@ class EvidenceAgent(BaseAgent):
             summary = str(assessment.get("evidence_summary", ""))
             quality = float(assessment.get("evidence_quality", 0.5))
             source_str = str(
-                assessment.get("source_type", "internal_memory")
+                assessment.get("source_type", "internal_memory"),
             )
             try:
                 source_type = SourceType(source_str)
@@ -206,7 +207,7 @@ class EvidenceAgent(BaseAgent):
                         "claim_id": claim_id,
                         "quality": quality,
                     },
-                )
+                ),
             )
 
         return evidence_items, events
