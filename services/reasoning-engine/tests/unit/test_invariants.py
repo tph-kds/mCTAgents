@@ -1,12 +1,10 @@
 """Tests for CCSR protocol invariants."""
 
-import pytest
 from mctagents.core.protocol import (
     Claim,
-    ClaimStatus,
     FinalAnswer,
-    RiskItem,
     Revision,
+    RiskItem,
 )
 from mctagents.core.protocol.invariants import (
     validate_all_invariants,

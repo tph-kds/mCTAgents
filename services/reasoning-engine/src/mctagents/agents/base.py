@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 from mctagents.core.protocol import (
     Claim,
-    Evidence,
     Event,
+    Evidence,
     Objection,
     ProblemFrame,
     Revision,
@@ -30,7 +30,7 @@ class AgentContext:
     revisions: list[Revision] = field(default_factory=list)
     debate_round: int = 0
     budget_remaining: dict[str, int] = field(
-        default_factory=lambda: {"max_tokens": 12000}
+        default_factory=lambda: {"max_tokens": 12000},
     )
     metadata: dict[str, object] = field(default_factory=dict)
 
@@ -64,7 +64,7 @@ class BaseAgent(ABC):
         ...
 
     def _build_messages(
-        self, system_prompt: str, user_prompt: str
+        self, system_prompt: str, user_prompt: str,
     ) -> list:
         from mctagents.services.model_gateway.base import ChatMessage
 

@@ -2,6 +2,7 @@
 
 import pytest
 from pydantic import ValidationError
+
 from mctagents.core.protocol import (
     Claim,
     ClaimScores,
@@ -26,7 +27,7 @@ from mctagents.core.protocol import (
 class TestClaim:
     def test_minimal_claim(self):
         claim = Claim(
-            id="c1", run_id="r1", author_agent_id="architect", text="test"
+            id="c1", run_id="r1", author_agent_id="architect", text="test",
         )
         assert claim.id == "c1"
         assert claim.confidence == 0.5

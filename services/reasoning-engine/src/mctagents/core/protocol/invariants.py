@@ -4,7 +4,7 @@ from .revision import Revision
 
 
 def validate_final_answer_references_accepted_claims(
-    final_answer: FinalAnswer, claims: list[Claim]
+    final_answer: FinalAnswer, claims: list[Claim],
 ) -> list[str]:
     """Invariant 1: Final answers must reference accepted claims."""
     errors: list[str] = []
@@ -12,7 +12,7 @@ def validate_final_answer_references_accepted_claims(
     for claim_id in final_answer.accepted_claim_ids:
         if claim_id not in accepted_ids:
             errors.append(
-                f"Final answer references non-accepted claim {claim_id}"
+                f"Final answer references non-accepted claim {claim_id}",
             )
     return errors
 
@@ -31,7 +31,7 @@ def validate_high_confidence_claims_have_evidence(
         ):
             errors.append(
                 f"High-confidence claim {claim.id} lacks evidence support "
-                f"(confidence={claim.confidence}, evidence_status={claim.evidence_status})"
+                f"(confidence={claim.confidence}, evidence_status={claim.evidence_status})",
             )
     return errors
 
@@ -58,7 +58,7 @@ def validate_revisions_link_claims(revisions: list[Revision]) -> list[str]:
         if revision.old_claim_id == revision.new_claim_id:
             errors.append(
                 f"Revision {revision.id} links old and new to same claim "
-                f"({revision.old_claim_id})"
+                f"({revision.old_claim_id})",
             )
     return errors
 
@@ -81,7 +81,7 @@ def validate_final_answer_declares_risks(
     errors: list[str] = []
     if not final_answer.risks:
         errors.append(
-            f"Final answer {final_answer.id} has no declared risks"
+            f"Final answer {final_answer.id} has no declared risks",
         )
     return errors
 
@@ -100,8 +100,8 @@ def validate_all_invariants(
     if final_answer is not None:
         errors.extend(
             validate_final_answer_references_accepted_claims(
-                final_answer, claims
-            )
+                final_answer, claims,
+            ),
         )
         errors.extend(validate_final_answer_declares_risks(final_answer))
     return errors
