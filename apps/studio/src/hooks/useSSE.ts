@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useCallback, useState } from "react";
-import type { SSEEvent } from "@/lib/types";
+import type { SSEEvent, ThinkingStep } from "@/lib/types";
 
 const SSE_EVENT_TYPES = [
   "run_started", "run_completed", "run_failed", "run_cancelled",
@@ -14,6 +14,7 @@ const SSE_EVENT_TYPES = [
 export function useSSE(runId: string | null) {
   const [events, setEvents] = useState<SSEEvent[]>([]);
   const [connected, setConnected] = useState(false);
+  const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const esRef = useRef<EventSource | null>(null);
 
   const connect = useCallback(() => {
@@ -28,6 +29,10 @@ export function useSSE(runId: string | null) {
       try {
         const parsed = JSON.parse(e.data);
         setEvents((prev) => [...prev, parsed as SSEEvent]);
+        const payload = parsed.payload as Record<string, unknown>;
+        if (payload && Array.isArray(payload.thinking_steps)) {
+          setThinkingSteps(prev => [...prev, ...payload.thinking_steps as ThinkingStep[]]);
+        }
       } catch { /* ignore malformed */ }
     };
 
@@ -42,5 +47,5 @@ export function useSSE(runId: string | null) {
     return () => { esRef.current?.close(); };
   }, [connect]);
 
-  return { events, connected };
+  return { events, connected, thinkingSteps };
 }

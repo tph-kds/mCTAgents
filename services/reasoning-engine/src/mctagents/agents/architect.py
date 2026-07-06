@@ -12,6 +12,7 @@ from mctagents.core.protocol import (
     ClaimStatus,
     ClaimType,
     EventType,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -77,11 +78,45 @@ class ArchitectAgent(BaseAgent):
     capabilities = ["propose_claims", "revise_claims", "compare_alternatives"]
 
     async def act(self, context: AgentContext) -> AgentResult:
-        if context.claims:
-            return await self._revise_claims(context)
-        return await self._propose_claims(context)
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
 
-    async def _propose_claims(self, context: AgentContext) -> AgentResult:
+        problem_summary = ""
+        if context.problem_frame:
+            raw = context.problem_frame.original_input
+            problem_summary = raw[:100] + ("..." if len(raw) > 100 else "")
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Analyzing problem: {problem_summary}",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
+
+        if context.claims:
+            thinking_steps.append(ThinkingStep(
+                step_type="reasoning",
+                content=f"Found {len(context.claims)} existing claims. Entering revise mode.",
+                agent_id=self.agent_id,
+                sequence=step_seq,
+            ))
+            return await self._revise_claims(context, thinking_steps, step_seq + 1)
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content="No existing claims. Entering propose mode.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        return await self._propose_claims(context, thinking_steps, step_seq + 1)
+
+    async def _propose_claims(
+        self,
+        context: AgentContext,
+        thinking_steps: list[ThinkingStep],
+        step_seq: int,
+    ) -> AgentResult:
         if context.problem_frame is None:
             logger.warning("no_problem_frame", run_id=context.run_id)
             return AgentResult(agent_id=self.agent_id)
@@ -106,6 +141,13 @@ class ArchitectAgent(BaseAgent):
         parsed = self._parse_response(response.content)
         claims = self._build_claims(context.run_id, parsed)
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Proposed {len(claims)} claims.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "claims_proposed",
             run_id=context.run_id,
@@ -129,9 +171,15 @@ class ArchitectAgent(BaseAgent):
             agent_id=self.agent_id,
             claims=claims,
             events=events,
+            thinking_steps=thinking_steps,
         )
 
-    async def _revise_claims(self, context: AgentContext) -> AgentResult:
+    async def _revise_claims(
+        self,
+        context: AgentContext,
+        thinking_steps: list[ThinkingStep],
+        step_seq: int,
+    ) -> AgentResult:
         challenged = [
             c
             for c in context.claims
@@ -139,7 +187,7 @@ class ArchitectAgent(BaseAgent):
         ]
 
         if not challenged:
-            return AgentResult(agent_id=self.agent_id)
+            return AgentResult(agent_id=self.agent_id, thinking_steps=thinking_steps)
 
         relevant_objections = [
             o
@@ -149,7 +197,7 @@ class ArchitectAgent(BaseAgent):
         ]
 
         if not relevant_objections:
-            return AgentResult(agent_id=self.agent_id)
+            return AgentResult(agent_id=self.agent_id, thinking_steps=thinking_steps)
 
         claims_summary = "\n".join(
             f"Claim {c.id}: {c.text} (confidence: {c.confidence})"
@@ -180,6 +228,13 @@ class ArchitectAgent(BaseAgent):
             context.run_id, parsed, challenged
         )
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Revised {len(new_claims)} claims.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "claims_revised",
             run_id=context.run_id,
@@ -204,6 +259,7 @@ class ArchitectAgent(BaseAgent):
             claims=new_claims,
             revisions=revision_dicts,
             events=events,
+            thinking_steps=thinking_steps,
         )
 
     def _parse_response(self, content: str) -> dict[str, object]:

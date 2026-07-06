@@ -12,6 +12,7 @@ from mctagents.core.protocol import (
     Evidence,
     EventType,
     SourceType,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -55,6 +56,9 @@ class EvidenceAgent(BaseAgent):
         self._evidence_service = evidence_service
 
     async def act(self, context: AgentContext) -> AgentResult:
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
+
         unsupported = [
             c
             for c in context.claims
@@ -70,6 +74,24 @@ class EvidenceAgent(BaseAgent):
 
         if not unsupported:
             return AgentResult(agent_id=self.agent_id)
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Evaluating evidence requirements for {len(unsupported)} claims.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
+
+        thinking_steps.append(ThinkingStep(
+            step_type="tool_call",
+            content="Searching for relevant evidence...",
+            agent_id=self.agent_id,
+            tool_name="evidence_service",
+            tool_args={"claim_count": len(unsupported)},
+            sequence=step_seq,
+        ))
+        step_seq += 1
 
         claims_summary = "\n".join(
             f"Claim {c.id} (type={c.claim_type.value}, confidence={c.confidence}): "
@@ -103,6 +125,13 @@ class EvidenceAgent(BaseAgent):
             context.run_id, parsed, unsupported
         )
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Assessed {len(unsupported)} claims, produced {len(evidence_items)} evidence items.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "evidence_assessed",
             run_id=context.run_id,
@@ -114,6 +143,7 @@ class EvidenceAgent(BaseAgent):
             agent_id=self.agent_id,
             evidence=evidence_items,
             events=events,
+            thinking_steps=thinking_steps,
         )
 
     def _parse_response(self, content: str) -> dict[str, object]:

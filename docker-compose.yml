@@ -12,7 +12,7 @@ services:
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/pgdata:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-mctagents} -d ${POSTGRES_DB:-mctagents}"]
@@ -31,7 +31,7 @@ services:
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
-      - redisdata:/data
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -50,7 +50,7 @@ services:
       - "${QDRANT_PORT:-6333}:6333"
       - "${QDRANT_GRPC_PORT:-6334}:6334"
     volumes:
-      - qdrant_data:/qdrant/storage
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/qdrant_data:/qdrant/storage
     environment:
       QDRANT__SERVICE__GRPC_PORT: 6334
     healthcheck:
@@ -70,7 +70,7 @@ services:
     ports:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      - ollama_data:/root/.ollama
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/ollama_data:/root/.ollama
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
       interval: 10s
@@ -86,6 +86,36 @@ services:
     #         - driver: nvidia
     #           count: all
     #           capabilities: [gpu]
+
+  # =============================================================================
+  # SGLang - High-Performance LLM Serving
+  # =============================================================================
+  sglang:
+    image: lmsysorg/sglang:latest
+    container_name: mctagents-sglang
+    ports:
+      - "${SGLANG_PORT:-30000}:30000"
+    volumes:
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/sglang_data:/root/.cache/huggingface
+    environment:
+      - HUGGING_FACE_HUB_TOKEN=${HF_TOKEN:-}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:30000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - mctagents
+    profiles:
+      - sglang
 
   # =============================================================================
   # API Gateway (Go)
@@ -216,10 +246,9 @@ services:
       - mctagents
 
 volumes:
-  pgdata:
-  redisdata:
-  qdrant_data:
-  ollama_data:
+  # All data volumes use explicit bind mounts on /home partition
+  # via DOCKER_DATA_ROOT env var (default: /home/zyelyhero/mctagents-data)
+  # No named volumes to avoid defaulting to Docker root (/var/lib/docker)
 
 networks:
   mctagents:

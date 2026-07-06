@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: mctagents
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/pgdata:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mctagents"]
@@ -30,7 +30,7 @@ services:
   qdrant:
     image: qdrant/qdrant:latest
     volumes:
-      - qdrant_data:/qdrant/storage
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/qdrant_data:/qdrant/storage
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:6333/healthz || exit 1"]
       interval: 10s
@@ -41,7 +41,7 @@ services:
   ollama:
     image: ollama/ollama:latest
     volumes:
-      - ollama_data:/root/.ollama
+      - ${DOCKER_DATA_ROOT:-/home/zyelyhero/mctagents-data}/ollama_data:/root/.ollama
     deploy:
       resources:
         reservations:
@@ -117,6 +117,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  pgdata:
-  qdrant_data:
-  ollama_data:
+  # All data volumes use explicit bind mounts on /home partition
+  # via DOCKER_DATA_ROOT env var (default: /home/zyelyhero/mctagents-data)

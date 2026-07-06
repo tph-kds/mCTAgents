@@ -9,9 +9,11 @@ import structlog
 from mctagents.agents.base import AgentContext, AgentResult, BaseAgent
 from mctagents.core.protocol import (
     Claim,
+    Event,
     EventType,
     ProblemFrame,
     RiskLevel,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -47,6 +49,17 @@ class ProblemFramer(BaseAgent):
     capabilities = ["normalize", "detect_domain", "set_risk"]
 
     async def act(self, context: AgentContext) -> AgentResult:
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content="Normalizing user input into structured problem frame.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
+
         original_input = ""
         if context.problem_frame is not None:
             original_input = context.problem_frame.original_input
@@ -66,6 +79,14 @@ class ProblemFramer(BaseAgent):
         parsed = self._parse_response(response.content)
         problem_frame = self._build_problem_frame(context.run_id, parsed)
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Framed problem as {problem_frame.risk_level.value} risk, "
+                    f"domain={problem_frame.domain or 'unspecified'}.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "problem_framed",
             run_id=context.run_id,
@@ -75,6 +96,7 @@ class ProblemFramer(BaseAgent):
 
         return AgentResult(
             agent_id=self.agent_id,
+            thinking_steps=thinking_steps,
             events=[
                 Event(
                     id=str(uuid.uuid4()),

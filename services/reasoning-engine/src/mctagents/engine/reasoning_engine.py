@@ -24,10 +24,9 @@ from mctagents.core.protocol import (
     Objection,
     ProblemFrame,
     Revision,
-    RunPhase,
 )
 from mctagents.engine.debate_controller import DebateController, RoundSnapshot
-from mctagents.engine.state_machine import InvalidTransitionError, StateMachine
+from mctagents.engine.state_machine import InvalidTransitionError, RunPhase, StateMachine
 
 logger = structlog.get_logger(__name__)
 

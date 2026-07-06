@@ -66,12 +66,12 @@ class TestEvidence:
             id="e1", run_id="r1", source_type=SourceType.UPLOADED_DOCUMENT,
             source_ref="doc.pdf", summary="test evidence",
         )
-        assert ev.reliability_score == 0.0
+        assert ev.reliability_score == 0.5
         assert ev.supports_claim_ids == []
 
     def test_full_evidence(self):
         ev = Evidence(
-            id="e1", run_id="r1", source_type=SourceType.EXTERNAL_KNOWLEDGE,
+            id="e1", run_id="r1", source_type=SourceType.WEB_SOURCE,
             source_ref="wiki", summary="test",
             reliability_score=0.9,
             supports_claim_ids=["c1"], attacks_claim_ids=["c2"],
@@ -151,6 +151,27 @@ class TestProblemFrame:
             requires_research=True,
         )
         assert pf.domain == "architecture"
+
+
+class TestAgentResult:
+    def test_agent_result_has_thinking_steps(self):
+        from mctagents.agents.base import AgentResult
+        from mctagents.core.protocol.thinking_step import ThinkingStep
+
+        result = AgentResult(
+            agent_id="test_agent",
+            thinking_steps=[
+                ThinkingStep(step_type="reasoning", content="thinking...", agent_id="test_agent"),
+            ],
+        )
+        assert len(result.thinking_steps) == 1
+        assert result.thinking_steps[0].content == "thinking..."
+
+    def test_agent_result_empty_thinking_steps(self):
+        from mctagents.agents.base import AgentResult
+
+        result = AgentResult(agent_id="test_agent")
+        assert result.thinking_steps == []
 
 
 class TestEvent:

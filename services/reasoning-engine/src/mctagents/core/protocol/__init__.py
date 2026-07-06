@@ -25,6 +25,7 @@ from .decision import Decision
 from .final_answer import FinalAnswer, RiskItem
 from .event import Event
 from .argument_edge import ArgumentEdge
+from .thinking_step import ThinkingStep
 from .document import Document, DocumentChunk
 from .debate_policy import DebatePolicy
 from .invariants import (
@@ -66,6 +67,7 @@ __all__ = [
     "RiskItem",
     "Event",
     "ArgumentEdge",
+    "ThinkingStep",
     "Document",
     "DocumentChunk",
     "DebatePolicy",

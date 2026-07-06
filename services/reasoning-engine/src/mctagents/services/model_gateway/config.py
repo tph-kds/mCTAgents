@@ -10,3 +10,17 @@ class ModelGatewayConfig(BaseSettings):
     max_retries: int = 3
 
     model_config = {"env_prefix": "MODEL_GATEWAY_"}
+
+
+class SGLangConfig(BaseSettings):
+    """Configuration for SGLang model provider."""
+
+    base_url: str = "http://localhost:30000"
+    model: str = "Qwen/Qwen3-1.7B"
+    context_length: int = 4096
+
+    model_config = {"env_prefix": "SGLANG_"}
+
+    @classmethod
+    def from_env(cls) -> "SGLangConfig":
+        return cls()

@@ -271,3 +271,10 @@ benchmarks/results/*.md
 # Logs
 *.log
 logs/
+
+# agents
+.agents/*
+.opencode/*
+.jcode/*
+.superpowers/*
+

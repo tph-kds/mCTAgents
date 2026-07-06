@@ -34,11 +34,12 @@ This produces reasoning that is **transparent**, **inspectable**, and **reproduc
               │  Gateway  │              │   Service     │    │   + Qdrant  │
               │   (Go)    │              │   (Python)    │    │             │
               └─────┬─────┘              └───────────────┘    └─────────────┘
-                    │
-              ┌─────▼─────┐
-              │   Ollama  │
-              │  (Local)  │
-              └───────────┘
+                     │
+               ┌─────▼─────┐
+               │  Ollama / │
+               │  SGLang   │
+               │  (Local)  │
+               └───────────┘
 ```
 
 ## Quick Start
@@ -46,29 +47,28 @@ This produces reasoning that is **transparent**, **inspectable**, and **reproduc
 ### Prerequisites
 
 - Docker & Docker Compose
-- Ollama (for local LLM inference)
+- NVIDIA GPU with ≥4GB VRAM (optional, CPU fallback available)
 
-### 1. Start everything
+### With SGLang (Recommended for <4GB VRAM)
 
 ```bash
+git clone https://github.com/anomalyco/mCTAgents.git && cd mCTAgents
+cp .env.example .env
+docker compose --profile sglang up -d
+# Wait for model download, then open http://localhost:3000
+```
+
+### With Ollama (Default)
+
+```bash
+git clone https://github.com/anomalyco/mCTAgents.git && cd mCTAgents
+cp .env.example .env
 make dev
+# Pull models: ollama pull qwen2.5:7b ollama pull nomic-embed-text
+# Open http://localhost:3000
 ```
 
-This starts all services with hot-reload for development.
-
-### 2. Pull required models
-
-```bash
-ollama pull qwen2.5:7b
-ollama pull deepseek-r1:7b
-ollama pull nomic-embed-text
-```
-
-### 3. Open the Studio
-
-Navigate to [http://localhost:3000](http://localhost:3000) to start a reasoning session.
-
-### 4. Create a run via API
+### Create a run via API
 
 ```bash
 curl -X POST http://localhost:8080/v1/runs \

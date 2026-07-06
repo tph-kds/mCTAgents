@@ -12,6 +12,7 @@ from mctagents.core.protocol import (
     ClaimStatus,
     Decision,
     EventType,
+    ThinkingStep,
 )
 
 logger = structlog.get_logger(__name__)
@@ -65,8 +66,19 @@ class JudgeAgent(BaseAgent):
     capabilities = ["score_claims", "accept_reject", "determine_consensus"]
 
     async def act(self, context: AgentContext) -> AgentResult:
+        thinking_steps: list[ThinkingStep] = []
+        step_seq = 0
+
         if not context.claims:
             return AgentResult(agent_id=self.agent_id)
+
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Scoring {len(context.claims)} claims across 5 dimensions.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+        step_seq += 1
 
         claims_summary = "\n".join(
             f"Claim {c.id} (type={c.claim_type.value}, confidence={c.confidence}, "
@@ -127,6 +139,15 @@ class JudgeAgent(BaseAgent):
             context.run_id, parsed, context
         )
 
+        thinking_steps.append(ThinkingStep(
+            step_type="reasoning",
+            content=f"Verdict: {len(decision.accepted_claim_ids)} accepted, "
+                    f"{len(decision.rejected_claim_ids)} rejected, "
+                    f"{len(decision.uncertain_claim_ids)} uncertain.",
+            agent_id=self.agent_id,
+            sequence=step_seq,
+        ))
+
         logger.info(
             "judge_scored",
             run_id=context.run_id,
@@ -139,6 +160,7 @@ class JudgeAgent(BaseAgent):
         return AgentResult(
             agent_id=self.agent_id,
             events=events,
+            thinking_steps=thinking_steps,
             metadata={"decision": decision},
         )
 
